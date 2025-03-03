@@ -1,8 +1,12 @@
 #include <iostream>
 #include "Group.h"
 #include <random>
+#include <algorithm>
 
 using namespace std;
+
+const int totalGroups = 100;
+const int MAX_ITERATE = 10;
 
 const int MAX_ROLES = 5;
 const vector<char> ROLES = {'t', 'j', 'm', 'a', 's'};
@@ -47,6 +51,79 @@ T chooseElement(const vector<T>& elements, const vector<double>& probabilities) 
 }
 
 
+
+void deleteElement(char &c, vector<char>& roles, vector<double>& probs){
+    for(int i = 0; i < roles.size(); i++){
+        if(roles.at(i) == c){
+            roles.erase(roles.begin() + i);
+            probs.erase(probs.begin() + i);
+            double sum = 0;
+            for(int j = 0; j < probs.size(); j++){
+                sum += probs.at(j);
+            }
+
+            for(int k = 0; k < probs.size(); k++){
+                probs[k] /= sum;
+            }
+            return;
+        }
+    }
+}
+
+void genGroups(vector<Group>& groups){
+    for(int i  = 0; i < totalGroups; i++){
+        int gpSize = chooseElement(GROUP_SIZE, GROUP_SIZE_PROBABILITY);
+        
+        vector<char> selectedRoles{};
+        vector<char> unselectedRoles = ROLES;
+        vector<double> unselectedProbs = ROLES_PROBABILITY;
+
+        for(int j = 0; j < gpSize; j++){
+            char role = chooseElement(unselectedRoles, unselectedProbs);
+            selectedRoles.push_back(role);
+            deleteElement(role, unselectedRoles, unselectedProbs);
+        }
+        Group gp{i, gpSize, selectedRoles};
+        groups.push_back(gp);
+    }
+}
+
+int addGroupGreedy(int pivot, vector<Group>& groups, vector<Group>& selectedGroup, vector<char>& unselectedRoles){
+    for(int i = pivot; i < MAX_ITERATE; i++){
+        pivot++;
+        Group g = groups.at(i);
+        int halt = 0;
+        for(auto it = g.begin(); it != g.end(); it++){
+            auto it2 = find(unselectedRoles.begin(), unselectedRoles.end(), *it);
+            if(it2 != unselectedRoles.end()){
+                halt = 1;
+                break;
+            }
+        }
+
+        if(halt) continue;
+
+        selectedGroup.push_back(g);
+        for(char r : g){
+            for(int i = 0; i < unselectedRoles.size(); i++){
+                if(unselectedRoles.at(i) == r){
+                    unselectedRoles.erase(unselectedRoles.begin() + i);
+                    break;
+                }
+            }
+        } 
+    }
+    return pivot;
+}
+
 int main(){
-    
+    int pivot = 0;
+    vector<Group> groups{};
+    genGroups(groups);
+    vector<Group> selected{};
+    vector<char> unselected = ROLES;
+    while(pivot != totalGroups){
+        pivot = addGroupGreedy(pivot, groups, selected, unselected);
+    }
+
 }

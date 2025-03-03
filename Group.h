@@ -11,13 +11,15 @@ class Group {
 
 public:
     // Constructor
-    Group(int queueNum, int tot, vector<char> first, vector<char> second)
+    Group(int queueNum, int tot, vector<char> first)
         : queueNum(queueNum), totalPlayers(tot), preferRoles(first) {}
 
     // Get the size of the group
     int getSize() {
         return totalPlayers;
     }
+
+    friend ostream& operator<<(ostream& os, const Group& group);
 
     // Iterator class
     class Iterator {
@@ -67,5 +69,17 @@ public:
         return Iterator(preferRoles.end());
     }
 };
+
+// Definition of the << operator
+ostream& operator<<(ostream& os, const Group& group) {
+    os << "Queue Number: " << group.queueNum << endl;
+    os << "Total Players: " << group.totalPlayers << endl;
+    os << "Preferred Roles: ";
+    for (char role : group.preferRoles) {
+        os << role << " ";
+    }
+    os << endl;
+    return os;
+}
 
 #endif
