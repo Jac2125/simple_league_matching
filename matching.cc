@@ -1,12 +1,13 @@
+#include "matching.h"
 #include <iostream>
-#include "Group.h"
 #include <random>
 #include <algorithm>
+#include <numeric>
 
 using namespace std;
 
-const int totalGroups = 100;
-const int MAX_ITERATE = 10;
+const int totalGroups = 20;
+const int MAX_ITERATE = 20;
 
 const int MAX_ROLES = 5;
 const vector<char> ROLES = {'t', 'j', 'm', 'a', 's'};
@@ -50,19 +51,17 @@ T chooseElement(const vector<T>& elements, const vector<double>& probabilities) 
     return elements.back();
 }
 
-
-
 void deleteElement(char &c, vector<char>& roles, vector<double>& probs){
-    for(int i = 0; i < roles.size(); i++){
+    for(int i = 0; i < static_cast<int>(roles.size()); i++){
         if(roles.at(i) == c){
             roles.erase(roles.begin() + i);
             probs.erase(probs.begin() + i);
             double sum = 0;
-            for(int j = 0; j < probs.size(); j++){
+            for(int j = 0; j < static_cast<int>(probs.size()); j++){
                 sum += probs.at(j);
             }
 
-            for(int k = 0; k < probs.size(); k++){
+            for(int k = 0; k < static_cast<int>(probs.size()); k++){
                 probs[k] /= sum;
             }
             return;
@@ -88,42 +87,51 @@ void genGroups(vector<Group>& groups){
     }
 }
 
-int addGroupGreedy(int pivot, vector<Group>& groups, vector<Group>& selectedGroup, vector<char>& unselectedRoles){
-    for(int i = pivot; i < MAX_ITERATE; i++){
-        pivot++;
-        Group g = groups.at(i);
-        int halt = 0;
-        for(auto it = g.begin(); it != g.end(); it++){
-            auto it2 = find(unselectedRoles.begin(), unselectedRoles.end(), *it);
-            if(it2 != unselectedRoles.end()){
-                halt = 1;
-                break;
-            }
+int addGroupGreedy(int pivot, vector<Group>& groups, vector<Group>& selectedGroup, vector<char>& unselectedRoles) {
+    int success = 0;
+    vector<int> adjustment;
+
+    int limit = min(static_cast<int>(groups.size()), pivot + MAX_ITERATE); // Ensure correct limit
+
+    for (int i = pivot; i < limit; i++) {
+        Group& g = groups[i];
+
+        // Corrected `all_of` usage
+        if (!all_of(g.begin(), g.end(), [&](const char& role) {
+            return find(unselectedRoles.begin(), unselectedRoles.end(), role) != unselectedRoles.end();
+        })) {
+            continue;
         }
 
-        if(halt) continue;
-
+        // Add group to selected list
         selectedGroup.push_back(g);
-        for(char r : g){
-            for(int i = 0; i < unselectedRoles.size(); i++){
-                if(unselectedRoles.at(i) == r){
-                    unselectedRoles.erase(unselectedRoles.begin() + i);
-                    break;
-                }
-            }
-        } 
-    }
-    return pivot;
-}
+        adjustment.push_back(i);
 
-int main(){
-    int pivot = 0;
-    vector<Group> groups{};
-    genGroups(groups);
-    vector<Group> selected{};
-    vector<char> unselected = ROLES;
-    while(pivot != totalGroups){
-        pivot = addGroupGreedy(pivot, groups, selected, unselected);
+        // Remove roles from unselectedRoles
+        for (char r : g) {
+            unselectedRoles.erase(remove(unselectedRoles.begin(), unselectedRoles.end(), r), unselectedRoles.end());
+        }
+
+        if (unselectedRoles.empty()) {
+            success = 1;
+            break;
+        }
     }
 
+    cout << "Selected indices: ";
+    for (int i : adjustment) cout << i << " ";
+    cout << "\nSuccess: " << success << endl;
+
+    if (success) {
+        // Erase in reverse order to prevent shifting issues
+        reverse(adjustment.begin(), adjustment.end());
+        for (int i : adjustment) {
+            groups.erase(groups.begin() + i);
+        }
+    } else {
+        selectedGroup.clear();
+    }
+
+    return success;
 }
+

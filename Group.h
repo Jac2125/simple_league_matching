@@ -2,6 +2,7 @@
 #define GROUP_H
 
 #include <vector>
+#include <ostream>
 using namespace std;
 
 class Group {
@@ -10,76 +11,22 @@ class Group {
     vector<char> preferRoles;
 
 public:
-    // Constructor
     Group(int queueNum, int tot, vector<char> first)
         : queueNum(queueNum), totalPlayers(tot), preferRoles(first) {}
 
-    // Get the size of the group
-    int getSize() {
-        return totalPlayers;
-    }
+    int getSize() { return totalPlayers; }
+
+    vector<char>& getRole() { return preferRoles; }
+
+    // ✅ Use vector's built-in iterators
+    vector<char>::iterator begin() { return preferRoles.begin(); }
+    vector<char>::iterator end() { return preferRoles.end(); }
+    vector<char>::const_iterator begin() const { return preferRoles.begin(); }
+    vector<char>::const_iterator end() const { return preferRoles.end(); }
 
     friend ostream& operator<<(ostream& os, const Group& group);
-
-    // Iterator class
-    class Iterator {
-    private:
-        vector<char>::iterator it; // Iterator for the preferRoles vector
-
-    public:
-        // Constructor
-        explicit Iterator(vector<char>::iterator ptr) : it(ptr) {}
-
-        // Dereference operator
-        char& operator*() const {
-            return *it;
-        }
-
-        // Pre-increment operator
-        Iterator& operator++() {
-            ++it;
-            return *this;
-        }
-
-        // Post-increment operator
-        Iterator operator++(int) {
-            Iterator temp = *this;
-            ++it;
-            return temp;
-        }
-
-        // Equality operator
-        bool operator==(const Iterator& other) const {
-            return it == other.it;
-        }
-
-        // Inequality operator
-        bool operator!=(const Iterator& other) const {
-            return it != other.it;
-        }
-    };
-
-    // Begin iterator
-    Iterator begin() {
-        return Iterator(preferRoles.begin());
-    }
-
-    // End iterator
-    Iterator end() {
-        return Iterator(preferRoles.end());
-    }
 };
 
-// Definition of the << operator
-ostream& operator<<(ostream& os, const Group& group) {
-    os << "Queue Number: " << group.queueNum << endl;
-    os << "Total Players: " << group.totalPlayers << endl;
-    os << "Preferred Roles: ";
-    for (char role : group.preferRoles) {
-        os << role << " ";
-    }
-    os << endl;
-    return os;
-}
+
 
 #endif
