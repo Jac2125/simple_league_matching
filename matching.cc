@@ -6,8 +6,8 @@
 
 using namespace std;
 
-const int totalGroups = 20;
-const int MAX_ITERATE = 20;
+int totalGroups = 2000;
+int MAX_ITERATE = 2000;
 
 const int MAX_ROLES = 5;
 const vector<char> ROLES = {'t', 'j', 'm', 'a', 's'};
@@ -117,10 +117,6 @@ int addGroupGreedy(int pivot, vector<Group>& groups, vector<Group>& selectedGrou
             break;
         }
     }
-
-    cout << "Selected indices: ";
-    for (int i : adjustment) cout << i << " ";
-    cout << "\nSuccess: " << success << endl;
 
     if (success) {
         // Erase in reverse order to prevent shifting issues

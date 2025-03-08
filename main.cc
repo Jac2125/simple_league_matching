@@ -1,24 +1,33 @@
 #include <iostream>
 #include "matching.h"
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
+bool verifier(vector<vector<Group>>& matchings){
+    for(vector<Group> team : matchings){
+        vector<char> totalRoles{ROLES};
+        for(Group g : team){
+            
+        }
+    }
+    return true;
+}
 
-int main(){
+int main(int argc, char* argv[]) {
+    // Accept totalGroups as a command-line argument
+    if (argc > 1) {
+        totalGroups = MAX_ITERATE = stoi(argv[1]);  // Convert argument to int
+    }
     
     vector<Group> groups{};
     genGroups(groups);
-    Group g1 = Group{0,2,{'t', 'j'}};
-    Group g2 = Group{1,2,{'m', 'a'}};
-    Group g3 = Group{2,1,{'s'}};
-    
-    //groups.push_back(g1);
-    //groups.push_back(g2);
-    //groups.push_back(g3);
 
     vector<vector<Group>> matchingResult{};
     int pivot = 0;
-    while((pivot + 1 <= groups.size())){
+    auto start = high_resolution_clock::now();
+    while((pivot + 1 <= static_cast<int>(groups.size()))){
         
         vector<Group> selectedGroups{};
         vector<char> unselectedRoles{ROLES};
@@ -28,20 +37,8 @@ int main(){
         //cout << "Done Adding" << endl;
         if(unselectedRoles.empty()) matchingResult.push_back(selectedGroups);
     }
-    
-    for(Group g : groups){
-        cout << g;
-    }
-
-    cout << endl << endl;
-
-    for(vector<Group> gVector : matchingResult){
-        for(Group g : gVector){
-            cout << g;
-        }
-        cout << endl;
-    }
-    
-
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+    cout << duration.count() << endl;
     return 0;
 }

@@ -6,8 +6,8 @@
 
 using namespace std;
 
-extern const int totalGroups;
-extern const int MAX_ITERATE;
+extern int totalGroups;
+extern int MAX_ITERATE;
 extern const int MAX_ROLES;
 extern const vector<char> ROLES;
 extern const vector<double> ROLES_PROBABILITY;
